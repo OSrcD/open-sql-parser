@@ -242,6 +242,16 @@ public class StatementProxyImpl extends WrapperProxyImpl implements StatementPro
 	}
 
 	@Override
+	public void closeOnCompletion() throws SQLException {
+
+	}
+
+	@Override
+	public boolean isCloseOnCompletion() throws SQLException {
+		return false;
+	}
+
+	@Override
 	public void setCursorName(String name) throws SQLException {
 		createChain().statement_setCursorName(this, name);
 	}

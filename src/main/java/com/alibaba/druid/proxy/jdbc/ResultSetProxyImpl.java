@@ -879,6 +879,16 @@ public class ResultSetProxyImpl extends WrapperProxyImpl implements ResultSetPro
 	}
 
 	@Override
+	public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
+		return null;
+	}
+
+	@Override
+	public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
+		return null;
+	}
+
+	@Override
 	public void updateNClob(int columnIndex, Reader x, long length) throws SQLException {
 		createChain().resultSet_updateNClob(this, columnIndex, x, length);
 	}

@@ -993,4 +993,14 @@ public final class PoolableResultSet extends PoolableWrapper implements ResultSe
 		rs.updateNClob(columnLabel, reader);
 	}
 
+	@Override
+	public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
+		return null;
+	}
+
+	@Override
+	public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
+		return null;
+	}
+
 }

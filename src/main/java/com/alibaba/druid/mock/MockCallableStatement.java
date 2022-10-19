@@ -689,4 +689,14 @@ public class MockCallableStatement extends MockPreparedStatement implements Call
 		
 	}
 
+	@Override
+	public <T> T getObject(int parameterIndex, Class<T> type) throws SQLException {
+		return null;
+	}
+
+	@Override
+	public <T> T getObject(String parameterName, Class<T> type) throws SQLException {
+		return null;
+	}
+
 }

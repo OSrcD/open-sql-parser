@@ -1,16 +1,8 @@
 package com.alibaba.druid.mock;
 
-import java.sql.Blob;
-import java.sql.Clob;
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.sql.DriverPropertyInfo;
-import java.sql.NClob;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.SQLXML;
+import java.sql.*;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 public class MockDriver implements Driver {
 	private String prefix = "jdbc:fake:";
@@ -82,6 +74,11 @@ public class MockDriver implements Driver {
 	@Override
 	public boolean jdbcCompliant() {
 		return true;
+	}
+
+	@Override
+	public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+		return null;
 	}
 
 	protected ResultSet createResultSet(MockStatement stmt, String sql) {

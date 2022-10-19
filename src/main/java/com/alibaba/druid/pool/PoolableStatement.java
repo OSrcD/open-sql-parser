@@ -279,7 +279,17 @@ public class PoolableStatement extends PoolableWrapper implements Statement {
 		return false;
 	}
 
-    public String toString() {
+	@Override
+	public void closeOnCompletion() throws SQLException {
+
+	}
+
+	@Override
+	public boolean isCloseOnCompletion() throws SQLException {
+		return false;
+	}
+
+	public String toString() {
         return stmt.toString();
     }
 }

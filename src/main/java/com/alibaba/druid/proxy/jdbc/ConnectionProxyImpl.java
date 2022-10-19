@@ -33,6 +33,7 @@ import java.sql.Struct;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Executor;
 
 import com.alibaba.druid.filter.FilterChain;
 import com.alibaba.druid.filter.FilterChainImpl;
@@ -137,6 +138,31 @@ public class ConnectionProxyImpl extends WrapperProxyImpl implements ConnectionP
 	@Override
 	public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
 		return createChain().connection_createStruct(this, typeName, attributes);
+	}
+
+	@Override
+	public void setSchema(String schema) throws SQLException {
+
+	}
+
+	@Override
+	public String getSchema() throws SQLException {
+		return null;
+	}
+
+	@Override
+	public void abort(Executor executor) throws SQLException {
+
+	}
+
+	@Override
+	public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
+
+	}
+
+	@Override
+	public int getNetworkTimeout() throws SQLException {
+		return 0;
 	}
 
 	@Override

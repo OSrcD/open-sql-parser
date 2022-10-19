@@ -6,11 +6,7 @@
  */
 package com.alibaba.druid.proxy;
 
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.sql.DriverPropertyInfo;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -18,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Logger;
 
 import com.alibaba.druid.filter.Filter;
 import com.alibaba.druid.proxy.config.AbstractDruidFilterConfig;
@@ -223,6 +220,11 @@ public class DruidDriver implements Driver, DruidDriverMBean {
 	@Override
 	public boolean jdbcCompliant() {
 		return true;
+	}
+
+	@Override
+	public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+		return null;
 	}
 
 	@Override

@@ -6,11 +6,7 @@
  */
 package com.alibaba.druid.pool;
 
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -18,6 +14,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
 
 import javax.naming.NamingException;
 import javax.naming.Reference;
@@ -449,6 +446,11 @@ public class DruidDataSource extends DruidDataAbstractSource implements DruidDat
 
     public int getActiveCount() {
         return activeCount;
+    }
+
+    @Override
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        return null;
     }
 
     public class CreateConnectionThread extends Thread {
