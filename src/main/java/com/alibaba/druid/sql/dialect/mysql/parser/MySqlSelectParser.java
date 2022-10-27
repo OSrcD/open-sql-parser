@@ -25,8 +25,8 @@ public class MySqlSelectParser extends SQLSelectParser {
     }
 
     @Override
-    protected SQLSelectQuery query() throws ParserException {
-        if (lexer.token() == (Token.LPAREN)) {
+    protected SQLSelectQuery query() throws ParserException { // 重写了父类方法 解析
+        if (lexer.token() == (Token.LPAREN)) { // 如果 Token 为 (
             lexer.nextToken();
 
             SQLSelectQuery select = query();
@@ -35,19 +35,19 @@ public class MySqlSelectParser extends SQLSelectParser {
             return queryRest(select);
         }
 
-        accept(Token.SELECT);
+        accept(Token.SELECT); // 用特点 token 访问获取下一个token
 
         MySqlSelectQueryBlock queryBlock = new MySqlSelectQueryBlock();
 
         if (lexer.token() == (Token.DISTINCT)) {
-            queryBlock.setDistionOption(SQLSetQuantifier.DISTINCT);
+            queryBlock.setDistionOption(SQLSetQuantifier.DISTINCT); // 为 2 设置为去重
             lexer.nextToken();
         } else if (identifierEquals("DISTINCTROW")) {
-            queryBlock.setDistionOption(SQLSetQuantifier.DISTINCTROW);
+            queryBlock.setDistionOption(SQLSetQuantifier.DISTINCTROW); // 标识为 2 DISTINCTROW 去重行
             lexer.nextToken();
         } else if (lexer.token() == (Token.ALL)) {
-            queryBlock.setDistionOption(SQLSetQuantifier.ALL);
-            lexer.nextToken();
+            queryBlock.setDistionOption(SQLSetQuantifier.ALL); // ALL 为 1 设置量词标记
+            lexer.nextToken(); // 标记完 获取下一个 token
         }
 
         if (identifierEquals("HIGH_PRIORITY")) {
@@ -90,7 +90,7 @@ public class MySqlSelectParser extends SQLSelectParser {
             lexer.nextToken();
         }
 
-        parseSelectList(queryBlock);
+        parseSelectList(queryBlock); // 解析 select 中的列表
 
         if (lexer.token() == (Token.INTO)) {
             lexer.nextToken();
@@ -141,13 +141,13 @@ public class MySqlSelectParser extends SQLSelectParser {
             }
         }
 
-        parseFrom(queryBlock);
+        parseFrom(queryBlock); // 解析 from 语句
 
-        parseWhere(queryBlock);
+        parseWhere(queryBlock); // 解析 where 语句
 
-        parseGroupBy(queryBlock);
+        parseGroupBy(queryBlock); // 解析 group by 语句
 
-        queryBlock.setOrderBy(this.createExprParser().parseOrderBy());
+        queryBlock.setOrderBy(this.createExprParser().parseOrderBy()); // 解析 order by 语句
 
         if (identifierEquals("LIMIT")) {
             lexer.nextToken();
@@ -195,7 +195,7 @@ public class MySqlSelectParser extends SQLSelectParser {
             queryBlock.setLockInShareMode(true);
         }
 
-        return queryRest(queryBlock);
+        return queryRest(queryBlock); // 解析查询重置
     }
 
     protected void parseGroupBy(SQLSelectQueryBlock queryBlock) throws ParserException {
@@ -232,7 +232,7 @@ public class MySqlSelectParser extends SQLSelectParser {
     }
 
     @Override
-    protected MySqlExprParser createExprParser() {
+    protected MySqlExprParser createExprParser() { // 创建 MySQL 表达式解析器
         return new MySqlExprParser(lexer);
     }
 }

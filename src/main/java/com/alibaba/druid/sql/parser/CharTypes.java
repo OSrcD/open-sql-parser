@@ -50,7 +50,7 @@ public class CharTypes {
         firstIdentifierFlags['_'] = true;
         firstIdentifierFlags['$'] = true;
     }
-
+    // 判断 char 是否为字符
     public static boolean isFirstIdentifierChar(char c) {
         return c > firstIdentifierFlags.length || firstIdentifierFlags[c];
     }
@@ -87,6 +87,7 @@ public class CharTypes {
 
     /**
      * @return false if {@link LayoutCharacters#EOI}
+     * 判断是不是空白字符
      */
     public static boolean isWhitespace(char c) {
         return c <= whitespaceFlags.length && whitespaceFlags[c];

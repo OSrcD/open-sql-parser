@@ -50,22 +50,22 @@ public class SQLExprParser extends SQLParser {
     }
 
     public SQLExpr expr() throws ParserException {
-        if (lexer.token() == Token.STAR) {
+        if (lexer.token() == Token.STAR) { // 如果表达式为 * 则标记为一个所有列
             lexer.nextToken();
 
             return new SQLAllColumnExpr();
         }
 
-        SQLExpr expr = primary();
+        SQLExpr expr = primary(); // 解析主要的表达式
 
-        if (lexer.token() == Token.COMMA) {
+        if (lexer.token() == Token.COMMA) { // Token , 直接返回
             return expr;
         }
 
         return exprRest(expr);
     }
 
-    public SQLExpr exprRest(SQLExpr expr) throws ParserException {
+    public SQLExpr exprRest(SQLExpr expr) throws ParserException { // 表达式重置的操作
         expr = bitXorRest(expr);
         expr = multiplicativeRest(expr);
         expr = additiveRest(expr);
@@ -88,7 +88,7 @@ public class SQLExprParser extends SQLParser {
     }
 
     public SQLExpr bitXorRest(SQLExpr expr) throws ParserException {
-        if (lexer.token() == Token.CARET) {
+        if (lexer.token() == Token.CARET) { // Token ^ 需要重置
             lexer.nextToken();
             SQLExpr rightExp = primary();
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.BitwiseXor, rightExp);
@@ -104,17 +104,17 @@ public class SQLExprParser extends SQLParser {
     }
 
     public SQLExpr multiplicativeRest(SQLExpr expr) throws ParserException {
-        if (lexer.token() == Token.STAR) {
+        if (lexer.token() == Token.STAR) { // 如果为 * 则重置
             lexer.nextToken();
             SQLExpr rightExp = primary();
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.Multiply, rightExp);
             expr = multiplicativeRest(expr);
-        } else if (lexer.token() == Token.SLASH) {
+        } else if (lexer.token() == Token.SLASH) { // 如果为 / 则重置
             lexer.nextToken();
             SQLExpr rightExp = primary();
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.Divide, rightExp);
             expr = multiplicativeRest(expr);
-        } else if (lexer.token() == Token.PERCENT) {
+        } else if (lexer.token() == Token.PERCENT) { // 如果为 % 重置
             lexer.nextToken();
             SQLExpr rightExp = primary();
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.Modulus, rightExp);
@@ -126,7 +126,7 @@ public class SQLExprParser extends SQLParser {
     public SQLExpr primary() throws ParserException {
         SQLExpr sqlExpr = null;
 
-        final Token tok = lexer.token();
+        final Token tok = lexer.token(); // 获取当前token
 
         switch (tok) {
         case LPAREN:
@@ -141,9 +141,9 @@ public class SQLExprParser extends SQLParser {
             }
             sqlExpr = new SQLIdentifierExpr("INSERT");
             break;
-        case IDENTIFIER:
-            sqlExpr = new SQLIdentifierExpr(lexer.stringVal());
-            lexer.nextToken();
+        case IDENTIFIER: // 标识符 token
+            sqlExpr = new SQLIdentifierExpr(lexer.stringVal()); // 实例化一个标识符表达式
+            lexer.nextToken(); // 获取 下一个 token
             break;
         case NEW:
             throw new ParserException("TODO");
@@ -392,7 +392,7 @@ public class SQLExprParser extends SQLParser {
             throw new IllegalArgumentException("expr");
         }
 
-        if (lexer.token() == Token.DOT) {
+        if (lexer.token() == Token.DOT) { // . token 需要重置
             lexer.nextToken();
 
             if (lexer.token() == Token.STAR) {
@@ -423,12 +423,12 @@ public class SQLExprParser extends SQLParser {
             }
 
             expr = primaryRest(expr);
-        } else if (lexer.token() == Token.COLONEQ) {
+        } else if (lexer.token() == Token.COLONEQ) { // := token 需要重置
             lexer.nextToken();
             SQLExpr rightExp = primary();
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.Assignment, rightExp);
         } else {
-            if (lexer.token() == Token.LPAREN) {
+            if (lexer.token() == Token.LPAREN) { // ( token 需要重置
                 if (expr instanceof SQLIdentifierExpr) {
                     SQLIdentifierExpr identExpr = (SQLIdentifierExpr) expr;
                     String method_name = identExpr.getName();
@@ -553,7 +553,7 @@ public class SQLExprParser extends SQLParser {
     }
 
     public SQLOrderBy parseOrderBy() throws ParserException {
-        if (lexer.token() == Token.ORDER) {
+        if (lexer.token() == Token.ORDER) { //
             SQLOrderBy orderBy = new SQLOrderBy();
 
             lexer.nextToken();
@@ -595,7 +595,7 @@ public class SQLExprParser extends SQLParser {
     }
 
     public final SQLExpr bitAndRest(SQLExpr expr) throws ParserException {
-        while (lexer.token() == Token.AMP) {
+        while (lexer.token() == Token.AMP) { // 如果为 & 重置
             lexer.nextToken();
             SQLExpr rightExp = shift();
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.BitwiseAnd, rightExp);
@@ -609,7 +609,7 @@ public class SQLExprParser extends SQLParser {
     }
 
     public final SQLExpr bitOrRest(SQLExpr expr) throws ParserException {
-        while (lexer.token() == Token.BAR) {
+        while (lexer.token() == Token.BAR) { // 如果为 | 重置
             lexer.nextToken();
             SQLExpr rightExp = bitAnd();
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.BitwiseOr, rightExp);
@@ -624,14 +624,14 @@ public class SQLExprParser extends SQLParser {
 
     public final SQLExpr equalityRest(SQLExpr expr) throws ParserException {
         SQLExpr rightExp;
-        if (lexer.token() == Token.EQ) {
+        if (lexer.token() == Token.EQ) { // 如果为 = 则重置
             lexer.nextToken();
             rightExp = or();
 
             rightExp = equalityRest(rightExp);
 
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.Equality, rightExp);
-        } else if (lexer.token() == Token.BANGEQ) {
+        } else if (lexer.token() == Token.BANGEQ) { // 如果为 != 则重置
             lexer.nextToken();
             rightExp = or();
 
@@ -644,7 +644,7 @@ public class SQLExprParser extends SQLParser {
     }
 
     public final SQLExpr inRest(SQLExpr expr) throws ParserException {
-        if (lexer.token() == Token.IN) {
+        if (lexer.token() == Token.IN) { // 如果为 IN 重置
             lexer.nextToken();
             accept(Token.LPAREN);
 
@@ -677,18 +677,18 @@ public class SQLExprParser extends SQLParser {
     }
 
     public SQLExpr additiveRest(SQLExpr expr) throws ParserException {
-        if (lexer.token() == Token.PLUS) {
+        if (lexer.token() == Token.PLUS) { // 如果为 + 则重置
             lexer.nextToken();
             SQLExpr rightExp = multiplicative();
 
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.Add, rightExp);
             expr = additiveRest(expr);
-        } else if (lexer.token() == Token.BARBAR) {
+        } else if (lexer.token() == Token.BARBAR) { // 如果为 || 重置
             lexer.nextToken();
             SQLExpr rightExp = multiplicative();
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.Concat, rightExp);
             expr = additiveRest(expr);
-        } else if (lexer.token() == Token.SUB) {
+        } else if (lexer.token() == Token.SUB) { // 如果为  - 重置
             lexer.nextToken();
             SQLExpr rightExp = multiplicative();
 
@@ -705,13 +705,13 @@ public class SQLExprParser extends SQLParser {
     }
 
     public SQLExpr shiftRest(SQLExpr expr) throws ParserException {
-        if (lexer.token() == Token.LTLT) {
+        if (lexer.token() == Token.LTLT) { // 如果为 << 则重置
             lexer.nextToken();
             SQLExpr rightExp = multiplicative();
 
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.LeftShift, rightExp);
             expr = shiftRest(expr);
-        } else if (lexer.token() == Token.GTGT) {
+        } else if (lexer.token() == Token.GTGT) { // 如果为 >> 重置
             lexer.nextToken();
             SQLExpr rightExp = multiplicative();
 
@@ -728,7 +728,7 @@ public class SQLExprParser extends SQLParser {
     }
 
     public final SQLExpr andRest(SQLExpr expr) throws ParserException {
-        while (lexer.token() == Token.AND || lexer.token() == Token.AMPAMP) {
+        while (lexer.token() == Token.AND || lexer.token() == Token.AMPAMP) { // 如果为 AND 或者为 && 重置
             lexer.nextToken();
             SQLExpr rightExp = equality();
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.BooleanAnd, rightExp);
@@ -742,7 +742,7 @@ public class SQLExprParser extends SQLParser {
     }
 
     public final SQLExpr xorRest(SQLExpr expr) throws ParserException {
-        while (lexer.token() == Token.XOR) {
+        while (lexer.token() == Token.XOR) { // 如果为 XOR 重置
             lexer.nextToken();
             SQLExpr rightExp = and();
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.BooleanXor, rightExp);
@@ -756,7 +756,7 @@ public class SQLExprParser extends SQLParser {
     }
 
     public final SQLExpr orRest(SQLExpr expr) throws ParserException {
-        while (lexer.token() == Token.OR) {
+        while (lexer.token() == Token.OR) { // 如果为 OR 则重置
             lexer.nextToken();
             SQLExpr rightExp = xor();
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.BooleanOr, rightExp);
@@ -772,63 +772,63 @@ public class SQLExprParser extends SQLParser {
 
     public SQLExpr relationalRest(SQLExpr expr) throws ParserException {
         SQLExpr rightExp;
-        if (lexer.token() == Token.LT) {
+        if (lexer.token() == Token.LT) { // 如果为 < 则重置
             lexer.nextToken();
             rightExp = bitOr();
 
             rightExp = relationalRest(rightExp);
 
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.LessThan, rightExp);
-        } else if (lexer.token() == Token.LTEQ) {
+        } else if (lexer.token() == Token.LTEQ) { // 如果为 <= 则重置
             lexer.nextToken();
             rightExp = shift();
 
             rightExp = relationalRest(rightExp);
 
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.LessThanOrEqual, rightExp);
-        } else if (lexer.token() == Token.LTEQGT) {
+        } else if (lexer.token() == Token.LTEQGT) { // 如果为 <=> 则重置
             lexer.nextToken();
             rightExp = shift();
 
             rightExp = relationalRest(rightExp);
 
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.LessThanOrEqualOrGreaterThan, rightExp);
-        } else if (lexer.token() == Token.GT) {
+        } else if (lexer.token() == Token.GT) { // 如果为 > 则重置
             lexer.nextToken();
             rightExp = shift();
 
             rightExp = relationalRest(rightExp);
 
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.GreaterThan, rightExp);
-        } else if (lexer.token() == Token.GTEQ) {
+        } else if (lexer.token() == Token.GTEQ) { // 如果为 >= 则重置
             lexer.nextToken();
             rightExp = shift();
 
             rightExp = relationalRest(rightExp);
 
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.GreaterThanOrEqual, rightExp);
-        } else if (lexer.token() == Token.BANGLT) {
+        } else if (lexer.token() == Token.BANGLT) { // 如果为 !< 则重置
             lexer.nextToken();
             rightExp = shift();
 
             rightExp = relationalRest(rightExp);
 
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.NotLessThan, rightExp);
-        } else if (lexer.token() == Token.BANGGT) {
+        } else if (lexer.token() == Token.BANGGT) { // 如果为 !> 则重置
             lexer.nextToken();
             rightExp = shift();
 
             rightExp = relationalRest(rightExp);
 
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.NotGreaterThan, rightExp);
-        } else if (lexer.token() == Token.LTGT) {
+        } else if (lexer.token() == Token.LTGT) { // 如果为 <> 则重置
             lexer.nextToken();
             rightExp = shift();
 
             rightExp = relationalRest(rightExp);
 
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.LessThanOrGreater, rightExp);
-        } else if (lexer.token() == Token.LIKE) {
+        } else if (lexer.token() == Token.LIKE) { // 如果为 LIKE 则重置
             lexer.nextToken();
             rightExp = shift();
 
@@ -841,7 +841,7 @@ public class SQLExprParser extends SQLParser {
                 rightExp = expr();
                 expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.Escape, rightExp);
             }
-        } else if (lexer.token() == (Token.NOT)) {
+        } else if (lexer.token() == (Token.NOT)) { // 如果为 NOT 则重置
             lexer.nextToken();
             expr = notRationalRest(expr);
         } else if (lexer.token() == (Token.BETWEEN)) {

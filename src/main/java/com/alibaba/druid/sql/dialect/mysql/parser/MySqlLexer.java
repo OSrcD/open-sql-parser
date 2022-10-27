@@ -19,10 +19,10 @@ public class MySqlLexer extends Lexer {
 		super(input);
 	}
 
-	public void scanIdentifier() {
+	public void scanIdentifier() { // 扫描标识符
 		final char first = ch;
 
-		if (ch == '`') {
+		if (ch == '`') { // 如果字符为 `
 			int hash = first;
 
 			offsetCache = curIndex;
@@ -54,7 +54,7 @@ public class MySqlLexer extends Lexer {
 			} else {
 				token = Token.IDENTIFIER;
 			}
-		} else {
+		} else { // 如果为字符 循环取出字符 直到字符是空白
 
 			final boolean firstFlag = isFirstIdentifierChar(first);
 			if (!firstFlag) {
@@ -67,26 +67,26 @@ public class MySqlLexer extends Lexer {
 			sizeCache = 1;
 			char ch;
 			for (;;) {
-				ch = sql[++curIndex];
+				ch = sql[++curIndex]; // 向前获取一个字符
 
 				if (!isIdentifierChar(ch)) {
-					break;
+					break; // 扫描到不是字符则退出
 				}
 
-				hash = 31 * hash + ch;
+				hash = 31 * hash + ch; // 字符 hash
 
-				sizeCache++;
+				sizeCache++; // 缓存大小加1
 				continue;
 			}
 
-			this.ch = sql[curIndex];
+			this.ch = sql[curIndex]; // 取出之前扫描的字符
 
-			stringVal = symbolTable.addSymbol(sql, offsetCache, sizeCache, hash);
-			Token tok = keywods.getKeyword(stringVal);
+			stringVal = symbolTable.addSymbol(sql, offsetCache, sizeCache, hash); // 字符缓存容器 返回一整串的字符
+			Token tok = keywods.getKeyword(stringVal); // 从关键字常量当中返回这个字符串的token
 			if (tok != null) {
 				token = tok;
 			} else {
-				token = Token.IDENTIFIER;
+				token = Token.IDENTIFIER; // 不是特点的关键字就标识为标识符 IDENTIFIER
 			}
 		}
 	}

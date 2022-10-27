@@ -19,7 +19,7 @@ import com.alibaba.druid.sql.ast.statement.SQLUpdateSetItem;
 import com.alibaba.druid.sql.ast.statement.SQLUpdateStatement;
 
 public class SQLStatementParser extends SQLParser {
-    protected final SQLExprParser exprParser;
+    protected final SQLExprParser exprParser; // SQL 表达式解析器
 
     public SQLStatementParser(String sql) {
         super(sql);
@@ -35,10 +35,10 @@ public class SQLStatementParser extends SQLParser {
     protected SQLExprParser createExprParser() {
         return new SQLExprParser(lexer);
     }
-
+    // 解析多条 SQL
     public List<SQLStatement> parseStatementList() throws ParserException {
         List<SQLStatement> statementList = new ArrayList<SQLStatement>();
-        parseStatementList(statementList);
+        parseStatementList(statementList); // 重载方法解析
         return statementList;
     }
 
@@ -48,13 +48,13 @@ public class SQLStatementParser extends SQLParser {
                 return;
             }
 
-            if (lexer.token() == (Token.SEMI)) {
+            if (lexer.token() == (Token.SEMI)) { // 如果 token 为 ;
                 lexer.nextToken();
                 continue;
             }
 
             if (lexer.token() == (Token.SELECT)) {
-                statementList.add(parseSelect());
+                statementList.add(parseSelect()); // 解析 select 类型 调用子类方法
                 continue;
             }
 

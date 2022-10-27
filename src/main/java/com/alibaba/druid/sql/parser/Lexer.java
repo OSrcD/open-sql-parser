@@ -25,11 +25,11 @@ import java.math.BigInteger;
  * @author shaojin.wensj
  */
 public class Lexer {
-	protected final char[] sql;
+	protected final char[] sql; // SQL 缓存区
 	protected int curIndex;
-	protected int sqlLength;
+	protected int sqlLength; // SQL长度
 	// QS_TODO what is the purpose?
-	protected int eofPos;
+	protected int eofPos; // 字符结束标志长度
 
 	/** The current character. */
 	protected char ch;
@@ -62,34 +62,34 @@ public class Lexer {
 	}
 
 	public Lexer(char[] input, int inputLength) {
-		this.sbuf = sbufRef.get(); // new char[1024];
+		this.sbuf = sbufRef.get(); // new char[1024]; 从缓冲区当中获取
 		if (this.sbuf == null) {
-			this.sbuf = new char[1024];
-			sbufRef.set(sbuf);
+			this.sbuf = new char[1024]; // 缓冲器没有对象 重新获取
+			sbufRef.set(sbuf); // 重新set
 		}
 
-		this.eofPos = inputLength;
+		this.eofPos = inputLength; // 字符结束标志长度
 
 		// QS_TODO ?
-		if (inputLength == input.length) {
-			if (input.length > 0 && isWhitespace(input[input.length - 1])) {
-				inputLength--;
+		if (inputLength == input.length) { // 输入长度 跟现在长度相等
+			if (input.length > 0 && isWhitespace(input[input.length - 1])) { // 判断是不是空白字符
+				inputLength--; // 空白字符长度就减一
 			} else {
-				char[] newInput = new char[inputLength + 1];
-				System.arraycopy(input, 0, newInput, 0, input.length);
-				input = newInput;
+				char[] newInput = new char[inputLength + 1]; // 长度加+1个字节
+				System.arraycopy(input, 0, newInput, 0, input.length); // 数组复制到 newInput
+				input = newInput; // 新的数组重新赋值给 input
 			}
 		}
 		this.sql = input;
 		this.sqlLength = inputLength;
-		this.sql[this.sqlLength] = EOI;
-		this.curIndex = -1;
+		this.sql[this.sqlLength] = EOI; // 82 赋值为结束标志位 0x1A
+		this.curIndex = -1; // 当前索引
 
 		scanChar();
 	}
 
 	protected final void scanChar() {
-		ch = sql[++curIndex];
+		ch = sql[++curIndex]; // 向前扫描取出一个字符
 	}
 
 	/**
@@ -109,7 +109,7 @@ public class Lexer {
 	/**
 	 * Return the current token, set by nextToken().
 	 */
-	public final Token token() {
+	public final Token token() { // 获取当前token
 		return token;
 	}
 
@@ -119,13 +119,13 @@ public class Lexer {
 		for (;;) {
 			tokenPos = curIndex;
 
-			if (isWhitespace(ch)) {
+			if (isWhitespace(ch)) { // 如果是空白的字符 继续获取下一个字符
 				scanChar();
 				continue;
 			}// QS_TODO skip comment
 
 			// QS_TODO id may start from digit
-			if (isFirstIdentifierChar(ch)) {
+			if (isFirstIdentifierChar(ch)) { // 判断第一个字符是否为字符类型
 				if (ch == 'N') {
 					if (sql[curIndex + 1] == '\'') {
 						++curIndex;
@@ -136,11 +136,11 @@ public class Lexer {
 					}
 				}
 
-				scanIdentifier();
+				scanIdentifier(); // 扫描一整串的标识符
 				return;
 			}
 
-			switch (ch) {
+			switch (ch) { // 不是特点的字符
 			case '0':
 				if (sql[curIndex + 1] == 'x') {
 					scanChar();
@@ -216,9 +216,9 @@ public class Lexer {
 				scanChar();
 				token = Token.QUES;
 				return;
-			case ';':
+			case ';': // 如果为;
 				scanChar();
-				token = Token.SEMI;
+				token = Token.SEMI; // 标记当前 token 为 ;
 				return;
 			case '`':
 				throw new SQLParseException("TODO"); // TODO
@@ -617,7 +617,7 @@ public class Lexer {
 	/**
 	 * The value of a literal token, recorded as a string. For integers, leading 0x and 'l' suffixes are suppressed.
 	 */
-	public final String stringVal() {
+	public final String stringVal() { // 获取 token 的值
 		return stringVal;
 	}
 

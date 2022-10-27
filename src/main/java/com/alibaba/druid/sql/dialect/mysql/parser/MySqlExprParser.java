@@ -31,7 +31,7 @@ public class MySqlExprParser extends SQLExprParser {
         this(new MySqlLexer(sql));
         this.lexer.nextToken();
     }
-
+    // 如果为 标识符 并且为 REGEXP 则重置
     public SQLExpr relationalRest(SQLExpr expr) throws ParserException {
         if (lexer.token() == Token.IDENTIFIER && "REGEXP".equalsIgnoreCase(lexer.stringVal())) {
             lexer.nextToken();
@@ -42,9 +42,9 @@ public class MySqlExprParser extends SQLExprParser {
             return new SQLBinaryOpExpr(expr, SQLBinaryOperator.RegExp, rightExp);
         }
 
-        return super.relationalRest(expr);
+        return super.relationalRest(expr); // 调用父类重置
     }
-
+    // Token 为IDENTIFIER 并且内容为 MOD 需要重置
     public SQLExpr multiplicativeRest(SQLExpr expr) throws ParserException {
         if (lexer.token() == Token.IDENTIFIER && "MOD".equalsIgnoreCase(lexer.stringVal())) {
             lexer.nextToken();
@@ -55,7 +55,7 @@ public class MySqlExprParser extends SQLExprParser {
             return new SQLBinaryOpExpr(expr, SQLBinaryOperator.Modulus, rightExp);
         }
 
-        return super.multiplicativeRest(expr);
+        return super.multiplicativeRest(expr); // 父类重置
     }
 
     public SQLExpr notRationalRest(SQLExpr expr) {
@@ -76,7 +76,7 @@ public class MySqlExprParser extends SQLExprParser {
             throw new IllegalArgumentException("expr");
         }
 
-        if (lexer.token() == Token.LITERAL_CHARS) {
+        if (lexer.token() == Token.LITERAL_CHARS) { // 文字字符需要重置
             if (expr instanceof SQLIdentifierExpr) {
                 SQLIdentifierExpr identExpr = (SQLIdentifierExpr) expr;
                 String ident = identExpr.getName();
@@ -130,7 +130,7 @@ public class MySqlExprParser extends SQLExprParser {
                 } while (lexer.token() == Token.LITERAL_CHARS);
                 expr = concat;
             }
-        } else if (lexer.token() == Token.IDENTIFIER) {
+        } else if (lexer.token() == Token.IDENTIFIER) { // 标识符token 需要重置
             if (expr instanceof SQLHexExpr) {
                 if ("USING".equalsIgnoreCase(lexer.stringVal())) {
                     lexer.nextToken();
@@ -185,7 +185,7 @@ public class MySqlExprParser extends SQLExprParser {
                 }
             }
         }
-
+        // token 为 (  需要重置 并且当前表达为 标识符表达SQL
         if (lexer.token() == Token.LPAREN && expr instanceof SQLIdentifierExpr) {
             SQLIdentifierExpr identExpr = (SQLIdentifierExpr) expr;
             String ident = identExpr.getName();
@@ -346,7 +346,7 @@ public class MySqlExprParser extends SQLExprParser {
             }
         }
 
-        return super.primaryRest(expr);
+        return super.primaryRest(expr); // 调用父类进行重置
     }
 
     protected SQLSelectParser createSelectParser() {

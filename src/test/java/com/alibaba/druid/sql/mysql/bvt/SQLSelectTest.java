@@ -76,7 +76,7 @@ public class SQLSelectTest extends TestCase {
 
     private void output(List<SQLStatement> stmtList) {
         for (SQLStatement stmt : stmtList) {
-            stmt.accept(new MySqlOutputVisitor(System.out));
+            stmt.accept(new MySqlOutputVisitor(System.out)); //
             System.out.println(";");
             System.out.println();
         }

@@ -36,9 +36,9 @@ public class SQLSelect extends SQLObjectImpl {
 
         if (this.orderBy != null) this.orderBy.output(buf);
     }
-
+    // 调用 select 类型的 accept0 方法
     protected void accept0(SQLASTVisitor visitor) {
-        if (visitor.visit(this)) {
+        if (visitor.visit(this)) { // 递归分解
             acceptChild(visitor, this.query);
             acceptChild(visitor, this.orderBy);
         }

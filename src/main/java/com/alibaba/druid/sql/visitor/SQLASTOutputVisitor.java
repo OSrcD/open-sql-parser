@@ -384,7 +384,7 @@ public class SQLASTOutputVisitor extends SQLASTVisitorAdapter {
         return false;
     }
 
-    public boolean visit(SQLSelect x) {
+    public boolean visit(SQLSelect x) { // 不同的重载实现类
         x.getQuery().accept(this);
 
         if (x.getOrderBy() != null) {
@@ -470,11 +470,11 @@ public class SQLASTOutputVisitor extends SQLASTVisitorAdapter {
 
         return false;
     }
-
-    public boolean visit(SQLSelectStatement stmt) {
+    // visit 观察者模式递归
+    public boolean visit(SQLSelectStatement stmt) { // SQLSelectStatement 类型的 visit
         SQLSelect select = stmt.getSelect();
 
-        select.accept(this);
+        select.accept(this); // 间接递归
 
         return false;
     }

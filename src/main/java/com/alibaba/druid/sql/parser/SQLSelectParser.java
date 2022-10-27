@@ -24,19 +24,19 @@ public class SQLSelectParser extends SQLParser {
         super(lexer);
     }
 
-    public SQLSelect select() throws ParserException {
+    public SQLSelect select() throws ParserException { // 共同数据库厂商 解析 select 语句
         SQLSelect select = new SQLSelect();
 
         select.setQuery(query());
-        select.setOrderBy(parseOrderBy());
+        select.setOrderBy(parseOrderBy()); // 外层的 order by
 
         if (select.getOrderBy() == null) {
-            select.setOrderBy(parseOrderBy());
+            select.setOrderBy(parseOrderBy()); // 外层的 order by
         }
 
         return select;
     }
-
+    // 解析查询重置
     public SQLSelectQuery queryRest(SQLSelectQuery selectQuery) throws ParserException {
         if (lexer.token() == Token.UNION) {
             lexer.nextToken();
@@ -55,11 +55,11 @@ public class SQLSelectParser extends SQLParser {
             return union;
         }
 
-        if (lexer.token() == Token.INTERSECT) {
+        if (lexer.token() == Token.INTERSECT) { // 如果 token 为 INTERSECT 交集
             throw new ParserException("TODO");
         }
 
-        if (lexer.token() == Token.MINUS) {
+        if (lexer.token() == Token.MINUS) { // 如果 token 为 MINUS 减法
             throw new ParserException("TODO");
         }
 
@@ -138,7 +138,7 @@ public class SQLSelectParser extends SQLParser {
     protected void parseSelectList(SQLSelectQueryBlock queryBlock) throws ParserException {
         queryBlock.getSelectList().add(new SQLSelectItem(expr(), as()));
 
-        while (lexer.token() == Token.COMMA) {
+        while (lexer.token() == Token.COMMA) { // 如果为 , 继续解析 其实可以递归
             lexer.nextToken();
             queryBlock.getSelectList().add(new SQLSelectItem(expr(), as()));
         }
@@ -151,11 +151,11 @@ public class SQLSelectParser extends SQLParser {
 
         lexer.nextToken();
 
-        queryBlock.setFrom(parseTableSource());
+        queryBlock.setFrom(parseTableSource());  // 解析表源
     }
 
-    public SQLTableSource parseTableSource() throws ParserException {
-        if (lexer.token() == Token.LPAREN) {
+    public SQLTableSource parseTableSource() throws ParserException { // 解析表源
+        if (lexer.token() == Token.LPAREN) { // 如果 token 为 (
             lexer.nextToken();
             SQLTableSource tableSource;
             if (lexer.token() == Token.SELECT) {
@@ -171,31 +171,31 @@ public class SQLSelectParser extends SQLParser {
             return parseTableSourceRest(tableSource);
         }
 
-        if (lexer.token() == Token.SELECT) {
+        if (lexer.token() == Token.SELECT) { // 如果 Token 为 SELECT
             throw new ParserException("TODO");
         }
 
-        SQLExprTableSource tableReference = new SQLExprTableSource();
+        SQLExprTableSource tableReference = new SQLExprTableSource(); // from table 则为这种类型
 
-        parseTableSourceQueryTableExpr(tableReference);
+        parseTableSourceQueryTableExpr(tableReference); // 解析查询表的表达式
 
-        return parseTableSourceRest(tableReference);
+        return parseTableSourceRest(tableReference); // 表达式重置
     }
 
     private void parseTableSourceQueryTableExpr(SQLExprTableSource tableReference) throws ParserException {
-        tableReference.setExpr(expr());
+        tableReference.setExpr(expr()); // 设置表名表达式
     }
 
     private SQLTableSource parseTableSourceRest(SQLTableSource tableSource) throws ParserException {
-        if ((tableSource.getAlias() == null) || (tableSource.getAlias().length() == 0)) {
-            if (lexer.token() != Token.LEFT && lexer.token() != Token.RIGHT && lexer.token() != Token.FULL) {
-                tableSource.setAlias(as());
+        if ((tableSource.getAlias() == null) || (tableSource.getAlias().length() == 0)) { // 如果表别名为空 或者 表别名长度为 0
+            if (lexer.token() != Token.LEFT && lexer.token() != Token.RIGHT && lexer.token() != Token.FULL) { // 如果 token 不为 LEFT 并且不为 RIGHT 并且不为 FULL
+                tableSource.setAlias(as()); // 设置表别名 为空也会设置
             }
         }
+        // 解析 join
+        SQLJoinTableSource.JoinType joinType = null; // 内部静态枚举
 
-        SQLJoinTableSource.JoinType joinType = null;
-
-        if (lexer.token() == Token.LEFT) {
+        if (lexer.token() == Token.LEFT) { // 如果 token 为 LEFT
             lexer.nextToken();
             if (lexer.token() == Token.OUTER) {
                 lexer.nextToken();
@@ -203,7 +203,7 @@ public class SQLSelectParser extends SQLParser {
 
             accept(Token.JOIN);
             joinType = SQLJoinTableSource.JoinType.LEFT_OUTER_JOIN;
-        } else if (lexer.token() == Token.RIGHT) {
+        } else if (lexer.token() == Token.RIGHT) { // 如果 token 为 RIGHT
             lexer.nextToken();
             if (lexer.token() == Token.OUTER) {
                 lexer.nextToken();
@@ -224,12 +224,12 @@ public class SQLSelectParser extends SQLParser {
         } else if (lexer.token() == Token.JOIN) {
             lexer.nextToken();
             joinType = SQLJoinTableSource.JoinType.JOIN;
-        } else if (lexer.token() == Token.COMMA) {
+        } else if (lexer.token() == Token.COMMA) { // 如果 token 为 ,
             lexer.nextToken();
             joinType = SQLJoinTableSource.JoinType.COMMA;
         }
 
-        if (joinType != null) {
+        if (joinType != null) { // 如果表链接为不空
             SQLJoinTableSource join = new SQLJoinTableSource();
             join.setLeft(tableSource);
             join.setJoinType(joinType);
@@ -246,8 +246,8 @@ public class SQLSelectParser extends SQLParser {
         return tableSource;
     }
 
-    public SQLExpr expr() {
-        return createExprParser().expr();
+    public SQLExpr expr() { // 解析表达式
+        return createExprParser().expr(); // 创建解析表达式并解析
     }
 
     protected SQLExprParser createExprParser() {

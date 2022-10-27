@@ -39,8 +39,8 @@ import com.alibaba.druid.sql.parser.Token;
 
 public class MySqlStatementParser extends SQLStatementParser {
     public MySqlStatementParser(String sql) throws ParserException {
-        this(new MySqlLexer(sql));
-        this.lexer.nextToken();
+        this(new MySqlLexer(sql)); // 初始化 词法解析器 表达解析器
+        this.lexer.nextToken(); // 获取下一个 token
     }
 
     public MySqlStatementParser(Lexer lexer) {
@@ -48,7 +48,7 @@ public class MySqlStatementParser extends SQLStatementParser {
     }
 
     protected SQLExprParser createExprParser() {
-        return new MySqlExprParser(lexer);
+        return new MySqlExprParser(lexer); // 创建表达式解析器
     }
 
     public SQLCreateTableStatement parseCreateTable() throws ParserException {

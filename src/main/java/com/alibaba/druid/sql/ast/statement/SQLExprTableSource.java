@@ -6,7 +6,7 @@ import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 public class SQLExprTableSource extends SQLTableSource {
     private static final long serialVersionUID = 1L;
 
-    protected SQLExpr expr;
+    protected SQLExpr expr; // 表表达式
 
     public SQLExprTableSource() {
 

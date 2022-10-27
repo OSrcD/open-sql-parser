@@ -5,7 +5,7 @@ import com.alibaba.druid.sql.ast.SQLObjectImpl;
 public abstract class SQLTableSource extends SQLObjectImpl {
     private static final long serialVersionUID = 1L;
 
-    protected String alias;
+    protected String alias; // 表别名
 
     public SQLTableSource() {
 

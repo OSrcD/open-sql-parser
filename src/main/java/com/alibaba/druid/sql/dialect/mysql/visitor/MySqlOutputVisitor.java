@@ -57,9 +57,9 @@ public class MySqlOutputVisitor extends SQLASTOutputVisitor implements MySqlASTV
     }
 
     @Override
-    public boolean visit(SQLSelectQueryBlock select) {
+    public boolean visit(SQLSelectQueryBlock select) { // 重写了 SQLASTOutputVisitor visit方法
         if (select instanceof MySqlSelectQueryBlock) {
-            return visit((MySqlSelectQueryBlock) select);
+            return visit((MySqlSelectQueryBlock) select); // 重载visit打印 select 块
         }
 
         return false;
@@ -102,7 +102,7 @@ public class MySqlOutputVisitor extends SQLASTOutputVisitor implements MySqlASTV
             print("SQL_CALC_FOUND_ROWS ");
         }
 
-        printAndAccept(select.getSelectList(), ", ");
+        printAndAccept(select.getSelectList(), ", ");// 打印select 中的参数 并 accept 递归
 
         if (select.getOutFile() != null) {
             println();

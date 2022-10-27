@@ -13,7 +13,7 @@ public class SQLSelectQueryBlock extends SQLSelectQuery {
     protected int distionOption;
     protected final List<SQLSelectItem> selectList = new ArrayList<SQLSelectItem>();
 
-    protected SQLTableSource from;;
+    protected SQLTableSource from;; // 设置表源 类型有 exp 表达式
     protected SQLExpr where;
     protected SQLSelectGroupByClause groupBy;
 
