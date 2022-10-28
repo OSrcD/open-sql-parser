@@ -228,7 +228,7 @@ public class MySqlSelectQueryBlock extends SQLSelectQueryBlock {
     @Override
     protected void accept0(SQLASTVisitor visitor) {
         if (visitor.visit(this)) { // 递归分解
-            acceptChild(visitor, this.selectList);
+            acceptChild(visitor, this.selectList); // 节点多
             acceptChild(visitor, this.from);
             acceptChild(visitor, this.where);
             acceptChild(visitor, this.groupBy);

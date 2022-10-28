@@ -48,7 +48,7 @@ public class SQLStatementParser extends SQLParser {
                 return;
             }
 
-            if (lexer.token() == (Token.SEMI)) { // 如果 token 为 ;
+            if (lexer.token() == (Token.SEMI)) { // 如果 token 为 ; 多条以; 会在里面分段进行解析
                 lexer.nextToken();
                 continue;
             }

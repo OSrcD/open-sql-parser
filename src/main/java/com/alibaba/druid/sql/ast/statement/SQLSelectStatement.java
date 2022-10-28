@@ -2,7 +2,7 @@ package com.alibaba.druid.sql.ast.statement;
 
 import com.alibaba.druid.sql.ast.SQLStatementImpl;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
-
+// 代表一条 select SQL 语句
 public class SQLSelectStatement extends SQLStatementImpl {
     private static final long serialVersionUID = 1L;
 

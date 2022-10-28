@@ -59,16 +59,16 @@ public class MySqlOutputVisitor extends SQLASTOutputVisitor implements MySqlASTV
     @Override
     public boolean visit(SQLSelectQueryBlock select) { // 重写了 SQLASTOutputVisitor visit方法
         if (select instanceof MySqlSelectQueryBlock) {
-            return visit((MySqlSelectQueryBlock) select); // 重载visit打印 select 块
+            return visit((MySqlSelectQueryBlock) select); // Java 很喜欢这种透明方式的重载 重载visit打印 select 块
         }
 
         return false;
     }
 
     public boolean visit(MySqlSelectQueryBlock select) {
-        print("SELECT ");
+        print("SELECT "); // select 语句 刚开始肯定是 select
 
-        if (SQLSetQuantifier.ALL == select.getDistionOption()) print("ALL ");
+        if (SQLSetQuantifier.ALL == select.getDistionOption()) print("ALL "); // 1 作为标记 即时 ALL
         else if (SQLSetQuantifier.DISTINCT == select.getDistionOption()) print("DISTINCT ");
         else if (SQLSetQuantifier.DISTINCTROW == select.getDistionOption()) {
             print("DISTINCTROW ");
@@ -101,10 +101,10 @@ public class MySqlOutputVisitor extends SQLASTOutputVisitor implements MySqlASTV
         if (select.isCalcFoundRows()) {
             print("SQL_CALC_FOUND_ROWS ");
         }
-
+        // 这种代表取里面的元素 继续访问
         printAndAccept(select.getSelectList(), ", ");// 打印select 中的参数 并 accept 递归
 
-        if (select.getOutFile() != null) {
+        if (select.getOutFile() != null) { // 打印输出文件
             println();
             print("INTO OUTFILE ");
             select.getOutFile().accept(this);
@@ -150,23 +150,23 @@ public class MySqlOutputVisitor extends SQLASTOutputVisitor implements MySqlASTV
             }
         }
 
-        if (select.getFrom() != null) {
+        if (select.getFrom() != null) { // 如果有 from
             println();
             print("FROM ");
-            select.getFrom().accept(this);
+            select.getFrom().accept(this); // 访问 from
         }
 
-        if (select.getWhere() != null) {
+        if (select.getWhere() != null) { // 如果有 where 字段
             println();
             print("WHERE ");
             select.getWhere().accept(this);
         }
 
-        if (select.getGroupBy() != null) {
+        if (select.getGroupBy() != null) { // 如果有 group by 字段
             select.getGroupBy().accept(this);
         }
 
-        if (select.getOrderBy() != null) {
+        if (select.getOrderBy() != null) { // 访问内层的 order by
             print(" ");
             select.getOrderBy().accept(this);
         }
@@ -176,7 +176,7 @@ public class MySqlOutputVisitor extends SQLASTOutputVisitor implements MySqlASTV
             select.getLimit().accept(this);
         }
 
-        if (select.getProcedureName() != null) {
+        if (select.getProcedureName() != null) { // 如果有存储过程字段
             print(" PROCEDURE ");
             select.getProcedureName().accept(this);
             if (select.getProcedureArgumentList().size() > 0) {
@@ -186,12 +186,12 @@ public class MySqlOutputVisitor extends SQLASTOutputVisitor implements MySqlASTV
             }
         }
 
-        if (select.isForUpdate()) {
+        if (select.isForUpdate()) { // 如果有 for update 字段
             println();
             print("FOR UPDATE");
         }
 
-        if (select.isLockInShareMode()) {
+        if (select.isLockInShareMode()) { // 如果有锁模式字段
             println();
             print("LOCK IN SHARE MODE");
         }

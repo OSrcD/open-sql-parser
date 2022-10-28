@@ -24,7 +24,7 @@ public abstract class SQLObjectImpl implements SQLObject, Serializable {
 
         visitor.preVisit(this);
 
-        accept0(visitor); // 每个实现类都会重写 为了掉 visitor的方法 如果有子节点掉的话 相当于分解节点
+        accept0(visitor); // 每个实现类都会重写 为了调 visitor的方法 如果有子节点掉的话 相当于分解节点
 
         visitor.postVisit(this);
     }

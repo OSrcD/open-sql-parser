@@ -3,7 +3,7 @@ package com.alibaba.druid.sql.ast.statement;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLObjectImpl;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
-
+// 查询列表中的类
 public class SQLSelectItem extends SQLObjectImpl {
     private static final long serialVersionUID = 1L;
 

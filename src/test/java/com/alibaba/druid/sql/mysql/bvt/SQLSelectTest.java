@@ -10,7 +10,7 @@ import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlOutputVisitor;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 
 public class SQLSelectTest extends TestCase {
-    public void test_select() throws Exception {
+    public void test_select() throws Exception { // 已测试完
         String sql = "SELECT ALL FID FROM T1;SELECT DISTINCT FID FROM T1;SELECT DISTINCTROW FID FROM T1;";
 
         SQLStatementParser parser = new MySqlStatementParser(sql);
@@ -76,9 +76,9 @@ public class SQLSelectTest extends TestCase {
 
     private void output(List<SQLStatement> stmtList) {
         for (SQLStatement stmt : stmtList) {
-            stmt.accept(new MySqlOutputVisitor(System.out)); //
-            System.out.println(";");
-            System.out.println();
+            stmt.accept(new MySqlOutputVisitor(System.out)); // 访问 SQLSelectStatment
+            System.out.println(";"); // 表语法的;结束
+            System.out.println(); // 换行
         }
     }
 }

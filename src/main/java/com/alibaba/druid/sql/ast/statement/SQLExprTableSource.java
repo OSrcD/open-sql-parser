@@ -2,7 +2,7 @@ package com.alibaba.druid.sql.ast.statement;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
-
+// 普通的from表源
 public class SQLExprTableSource extends SQLTableSource {
     private static final long serialVersionUID = 1L;
 

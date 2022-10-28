@@ -114,7 +114,7 @@ public class SQLASTOutputVisitor extends SQLASTVisitorAdapter {
         int i = 0;
         for (int size = nodes.size(); i < size; ++i) {
             if (i != 0) {
-                print(seperator);
+                print(seperator); // 打印 , 符号
             }
             nodes.get(i).accept(this);
         }
@@ -264,7 +264,7 @@ public class SQLASTOutputVisitor extends SQLASTVisitorAdapter {
     }
 
     public boolean visit(SQLIdentifierExpr astNode) {
-        print(astNode.getName());
+        print(astNode.getName()); // 打印 select 中的列名
         return false;
     }
 
@@ -387,9 +387,9 @@ public class SQLASTOutputVisitor extends SQLASTVisitorAdapter {
     public boolean visit(SQLSelect x) { // 不同的重载实现类
         x.getQuery().accept(this);
 
-        if (x.getOrderBy() != null) {
+        if (x.getOrderBy() != null) { // 如果有 外层 order by字段
             print(" ");
-            x.getOrderBy().accept(this);
+            x.getOrderBy().accept(this); // 访问 order by
         }
 
         return false;
@@ -429,7 +429,7 @@ public class SQLASTOutputVisitor extends SQLASTVisitorAdapter {
     public boolean visit(SQLSelectItem x) {
         x.getExpr().accept(this);
 
-        if ((x.getAlias() != null) && (x.getAlias().length() > 0)) {
+        if ((x.getAlias() != null) && (x.getAlias().length() > 0)) { // 如果有表别名打印别名
             print(" AS ");
             print(x.getAlias());
         }
@@ -461,9 +461,9 @@ public class SQLASTOutputVisitor extends SQLASTVisitorAdapter {
     }
 
     public boolean visit(SQLExprTableSource x) {
-        x.getExpr().accept(this);
+        x.getExpr().accept(this); // 访问 表源的 表达式子元数据
 
-        if (x.getAlias() != null) {
+        if (x.getAlias() != null) { // 如果有表别名
             print(' ');
             print(x.getAlias());
         }
