@@ -39,7 +39,7 @@ import com.alibaba.druid.sql.parser.Token;
 
 public class MySqlStatementParser extends SQLStatementParser {
     public MySqlStatementParser(String sql) throws ParserException {
-        this(new MySqlLexer(sql)); // 初始化 词法解析器 表达解析器
+        this(new MySqlLexer(sql)); // 初始化 词法解析器 表达解析器 并 扫描第一个字符
         this.lexer.nextToken(); // 获取下一个 token
     }
 

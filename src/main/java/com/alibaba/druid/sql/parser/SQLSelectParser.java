@@ -38,18 +38,18 @@ public class SQLSelectParser extends SQLParser {
     }
     // 解析查询重置
     public SQLSelectQuery queryRest(SQLSelectQuery selectQuery) throws ParserException {
-        if (lexer.token() == Token.UNION) {
+        if (lexer.token() == Token.UNION) { // union
             lexer.nextToken();
 
             SQLUnionQuery union = new SQLUnionQuery();
             union.setLeft(selectQuery);
 
-            if (lexer.token() == Token.ALL) {
+            if (lexer.token() == Token.ALL) { // all
                 union.setAll(true);
                 lexer.nextToken();
             }
 
-            SQLSelectQuery right = this.query();
+            SQLSelectQuery right = this.query(); // 间接递归
             union.setRight(right);
 
             return union;
@@ -67,13 +67,13 @@ public class SQLSelectParser extends SQLParser {
     }
 
     protected SQLSelectQuery query() throws ParserException {
-        if (lexer.token() == Token.LPAREN) {
+        if (lexer.token() == Token.LPAREN) { // 子查询
             lexer.nextToken();
 
-            SQLSelectQuery select = query();
-            accept(Token.RPAREN);
+            SQLSelectQuery select = query(); // 递归
+            accept(Token.RPAREN); // 右括号
 
-            return queryRest(select);
+            return queryRest(select); // union all 重置
         }
 
         accept(Token.SELECT);
@@ -91,15 +91,15 @@ public class SQLSelectParser extends SQLParser {
             lexer.nextToken();
         }
 
-        parseSelectList(queryBlock);
+        parseSelectList(queryBlock); // 列查询 重置
 
-        parseFrom(queryBlock);
+        parseFrom(queryBlock); // from 解析 join left right重置
 
-        parseWhere(queryBlock);
+        parseWhere(queryBlock); // where 解析 重置
 
-        parseGroupBy(queryBlock);
+        parseGroupBy(queryBlock); // group 解析 重置
 
-        return queryRest(queryBlock);
+        return queryRest(queryBlock); // all，union 重置
     }
 
     protected void parseWhere(SQLSelectQueryBlock queryBlock) throws ParserException {
@@ -161,14 +161,14 @@ public class SQLSelectParser extends SQLParser {
             if (lexer.token() == Token.SELECT) {
                 tableSource = new SQLSubqueryTableSource(select());
             } else if (lexer.token() == Token.LPAREN) {
-                tableSource = parseTableSource();
+                tableSource = parseTableSource(); // 递归
             } else {
                 throw new ParserException("TODO");
             }
 
             accept(Token.RPAREN);
 
-            return parseTableSourceRest(tableSource);
+            return parseTableSourceRest(tableSource); // 多表关联查询 join 重置
         }
 
         if (lexer.token() == Token.SELECT) { // 如果 Token 为 SELECT
@@ -233,7 +233,7 @@ public class SQLSelectParser extends SQLParser {
             SQLJoinTableSource join = new SQLJoinTableSource();
             join.setLeft(tableSource);
             join.setJoinType(joinType);
-            join.setRight(parseTableSource());
+            join.setRight(parseTableSource()); // 间接递归
 
             if (lexer.token() == Token.ON) {
                 lexer.nextToken();

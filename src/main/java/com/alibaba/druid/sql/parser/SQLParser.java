@@ -38,7 +38,7 @@ public class SQLParser {
                 return rtnValue;
             }
 
-            if (lexer.token() == Token.IDENTIFIER) {
+            if (lexer.token() == Token.IDENTIFIER) { // 标识符
                 rtnValue = lexer.stringVal();
                 lexer.nextToken();
                 return rtnValue;
@@ -56,7 +56,7 @@ public class SQLParser {
         }
         return rtnValue;
     }
-
+    // 扫描2次token 不需要 new 对象
     public void accept(Token token) { // 相等扫描下一个字符 否则报语法错误
         if (lexer.token() == token) { // 当前 token 等于 传入进来 token
             lexer.nextToken();

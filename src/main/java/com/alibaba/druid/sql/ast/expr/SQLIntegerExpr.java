@@ -1,7 +1,7 @@
 package com.alibaba.druid.sql.ast.expr;
 
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
-
+// 数字类型的表达式 比如 1
 public class SQLIntegerExpr extends SQLNumericLiteralExpr {
     private static final long serialVersionUID = 1L;
 

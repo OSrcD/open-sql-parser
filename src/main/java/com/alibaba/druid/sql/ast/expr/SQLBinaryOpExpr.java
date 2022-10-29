@@ -5,12 +5,12 @@ import java.io.Serializable;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLExprImpl;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
-
+// 位运算 比如 1 + 1
 public class SQLBinaryOpExpr extends SQLExprImpl implements Serializable {
     private static final long serialVersionUID = 1L;
-    public SQLExpr left;
-    public SQLExpr right;
-    public SQLBinaryOperator operator;
+    public SQLExpr left; // 左边部分
+    public SQLExpr right; // 右边部分
+    public SQLBinaryOperator operator; // 操作符
 
     public SQLBinaryOpExpr() {
 

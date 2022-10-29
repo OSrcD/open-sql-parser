@@ -67,7 +67,7 @@ public class MySqlLexer extends Lexer {
 			sizeCache = 1;
 			char ch;
 			for (;;) {
-				ch = sql[++curIndex]; // 向前获取一个字符
+				ch = sql[++curIndex]; // 向前获取一个字符 会超前取出一个字符
 
 				if (!isIdentifierChar(ch)) {
 					break; // 扫描到不是字符则退出
@@ -93,7 +93,7 @@ public class MySqlLexer extends Lexer {
 
 	protected void scanString() {
 		offsetCache = curIndex;
-		boolean hasSpecial = false;
+		boolean hasSpecial = false; // 有特殊处理标记
 
 		for (;;) {
 			if (curIndex >= sqlLength) {
@@ -101,7 +101,7 @@ public class MySqlLexer extends Lexer {
 				return;
 			}
 
-			ch = sql[++curIndex];
+			ch = sql[++curIndex]; // 先向前扫
 
 			if (ch == '\\') {
 				scanChar();
@@ -145,10 +145,10 @@ public class MySqlLexer extends Lexer {
 				scanChar();
 			}
 
-			if (ch == '\'') {
-				scanChar();
-				if (ch != '\'') {
-					token = LITERAL_CHARS;
+			if (ch == '\'') { // 为 \ 其实就是' 字符
+				scanChar(); // 向前扫一个字符
+				if (ch != '\'') { // 如果不等于 ' 字符
+					token = LITERAL_CHARS;  // 标记该token为 文字字符
 					break;
 				} else {
 					System.arraycopy(sql, offsetCache + 1, sbuf, 0, sizeCache);
@@ -159,7 +159,7 @@ public class MySqlLexer extends Lexer {
 			}
 
 			if (!hasSpecial) {
-				sizeCache++;
+				sizeCache++; // 判断下一个字符 但没被case到加1了
 				continue;
 			}
 
@@ -171,7 +171,7 @@ public class MySqlLexer extends Lexer {
 		}
 
 		if (!hasSpecial) {
-			stringVal = new String(sql, offsetCache + 1, sizeCache);
+			stringVal = new String(sql, offsetCache + 1, sizeCache); // 取出 ', '里的 , 字符
 		} else {
 			stringVal = new String(sbuf, 0, sizeCache);
 		}

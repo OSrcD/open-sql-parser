@@ -5,7 +5,7 @@ import java.io.Serializable;
 import com.alibaba.druid.sql.ast.SQLExprImpl;
 import com.alibaba.druid.sql.ast.statement.SQLSelect;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
-
+// 列中select语句
 public class SQLQueryExpr extends SQLExprImpl implements Serializable {
     private static final long serialVersionUID = 1L;
     public SQLSelect subQuery;

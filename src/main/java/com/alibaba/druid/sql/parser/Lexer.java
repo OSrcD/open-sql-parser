@@ -26,7 +26,7 @@ import java.math.BigInteger;
  */
 public class Lexer {
 	protected final char[] sql; // SQL 缓存区
-	protected int curIndex;
+	protected int curIndex; // token之后下一个索引
 	protected int sqlLength; // SQL长度
 	// QS_TODO what is the purpose?
 	protected int eofPos; // 字符结束标志长度
@@ -42,9 +42,9 @@ public class Lexer {
 	protected char[] sbuf;
 
 	/** string point as size */
-	protected int sizeCache;
+	protected int sizeCache; // 根据扫描到的字符自增多少
 	/** string point as offset */
-	protected int offsetCache;
+	protected int offsetCache; // Token 扫描到的缓存节点起点索引
 
 	protected SymbolTable symbolTable = new SymbolTable();
 
@@ -85,11 +85,11 @@ public class Lexer {
 		this.sql[this.sqlLength] = EOI; // 82 赋值为结束标志位 0x1A
 		this.curIndex = -1; // 当前索引
 
-		scanChar();
+		scanChar(); // 扫描第一个字符
 	}
-
+	// 向前扫描取出一个字符
 	protected final void scanChar() {
-		ch = sql[++curIndex]; // 向前扫描取出一个字符
+		ch = sql[++curIndex];
 	}
 
 	/**
@@ -112,20 +112,20 @@ public class Lexer {
 	public final Token token() { // 获取当前token
 		return token;
 	}
-
+	// 扫描数字  空白 字符串 先扫描下一个标识符 再把当前 token 标识为 plus 解析完 token（遇到accept再次扫描token） 之后扫描下一个 token
 	public final void nextToken() {
 		sizeCache = 0;
 
 		for (;;) {
 			tokenPos = curIndex;
-
+			// ch 是下一个字符的
 			if (isWhitespace(ch)) { // 如果是空白的字符 继续获取下一个字符
 				scanChar();
 				continue;
 			}// QS_TODO skip comment
 
 			// QS_TODO id may start from digit
-			if (isFirstIdentifierChar(ch)) { // 判断第一个字符是否为字符类型
+			if (isFirstIdentifierChar(ch)) { // 判断第一个字符是否为字符类型 比如,不是我们预设的字符
 				if (ch == 'N') {
 					if (sql[curIndex + 1] == '\'') {
 						++curIndex;
@@ -140,7 +140,7 @@ public class Lexer {
 				return;
 			}
 
-			switch (ch) { // 不是特点的字符
+			switch (ch) { // 不是特定的字符 是数字 比如 1+1
 			case '0':
 				if (sql[curIndex + 1] == 'x') {
 					scanChar();
@@ -159,19 +159,19 @@ public class Lexer {
 			case '7':
 			case '8':
 			case '9':
-				scanNumber();
+				scanNumber(); // 扫描数字
+				return; // 扫描完数字返回
+			case ',': // 扫描 ,
+				scanChar(); // 先扫描下一个
+				token = COMMA; // 再取 逗号, token
 				return;
-			case ',':
+			case '(': // 扫描 ( 比如一些函数中的括号啊
 				scanChar();
-				token = COMMA;
-				return;
-			case '(':
-				scanChar();
-				token = LPAREN;
+				token = LPAREN; // 返回 左边 括号 token 标识符
 				return;
 			case ')':
 				scanChar();
-				token = RPAREN;
+				token = RPAREN; // 返回 右边括号 token 标识符
 				return;
 			case '[':
 				scanChar();
@@ -202,8 +202,8 @@ public class Lexer {
 				scanChar();
 				token = Token.DOT;
 				return;
-			case '\'':
-				scanString();
+			case '\'': // 一般是 \' 转义
+				scanString(); // 扫描字符串
 				return;
 			case '\"':
 				scanAlias();
@@ -227,13 +227,13 @@ public class Lexer {
 				token = Token.USR_VAR;
 				return;
 			default:
-				if (Character.isLetter(ch)) {
+				if (Character.isLetter(ch)) { // 如果是字母
 					scanIdentifier();
 					return;
 				}
 
-				if (isOperator(ch)) {
-					scanOperator();
+				if (isOperator(ch)) { // 如果是 操作符 比如 +
+					scanOperator(); // 扫描操作符
 					return;
 				}
 
@@ -254,9 +254,9 @@ public class Lexer {
 
 	private final void scanOperator() {
 		switch (ch) {
-		case '+':
-			scanChar();
-			token = Token.PLUS;
+		case '+': // 如果为 + 操作符
+			scanChar(); //
+			token = Token.PLUS; // 先扫描下一个标识符 再把当前 token 标识为 plus 解析完 token 之后扫描下一个 token
 			break;
 		case '-':
 			scanChar();
@@ -484,7 +484,7 @@ public class Lexer {
 		for (;;) {
 			ch = sql[++curIndex];
 
-			if (!isIdentifierChar(ch)) {
+			if (!isIdentifierChar(ch)) { // 判断是否是字符 是字符继续 不是就退出
 				break;
 			}
 
@@ -505,26 +505,26 @@ public class Lexer {
 		}
 	}
 
-	public void scanNumber() {
+	public void scanNumber() { // 扫描到为特定的字符就取下一个 进而判断是 浮点还是数字
 		offsetCache = curIndex;
 
-		if (ch == '-') {
+		if (ch == '-') { // 如果当前字符等于 -
 			sizeCache++;
 			ch = sql[++curIndex];
 		}
 
-		for (;;) {
-			if (ch >= '0' && ch <= '9') {
-				sizeCache++;
+		for (;;) { // 循环扫描数字
+			if (ch >= '0' && ch <= '9') { // 当前字符为 0 ~ 9
+				sizeCache++; // 大小缓存
 			} else {
 				break;
 			}
-			ch = sql[++curIndex];
+			ch = sql[++curIndex]; // 取新的字符
 		}
 
 		boolean isDouble = false;
 
-		if (ch == '.') {
+		if (ch == '.') { // 如果字符为 . 为浮点型
 			sizeCache++;
 			ch = sql[++curIndex];
 			isDouble = true;
@@ -560,10 +560,10 @@ public class Lexer {
 			isDouble = true;
 		}
 
-		if (isDouble) {
+		if (isDouble) { // 根据下一个字符判断为 浮点型还是 数字
 			token = Token.LITERAL_NUM_MIX_DIGIT;
 		} else {
-			token = Token.LITERAL_NUM_PURE_DIGIT;
+			token = Token.LITERAL_NUM_PURE_DIGIT; // 该 token 由数字组成
 		}
 	}
 
@@ -620,14 +620,14 @@ public class Lexer {
 	public final String stringVal() { // 获取 token 的值
 		return stringVal;
 	}
-
+	// 扫描是否为操作符 如果为操作符 比如 + 则 返回 true
 	private boolean isOperator(char ch) {
 		switch (ch) {
 		case '!':
 		case '%':
 		case '&':
 		case '*':
-		case '+':
+		case '+': // 为+字符则为 true
 		case '-':
 		case '<':
 		case '=':
@@ -655,25 +655,25 @@ public class Lexer {
 	}
 
 	// QS_TODO negative number is invisible for lexer
-	public Number integerValue() throws NumberFormatException {
+	public Number integerValue() throws NumberFormatException { // 获取数字的值
 		long result = 0;
 		boolean negative = false;
-		int i = offsetCache, max = offsetCache + sizeCache;
+		int i = offsetCache, max = offsetCache + sizeCache; // sizeCache 取出字符的缓存数
 		long limit;
 		long multmin;
 		int digit;
 
-		if (sql[offsetCache] == '-') {
+		if (sql[offsetCache] == '-') { // 如果要取的缓存当前字符为 -
 			negative = true;
 			limit = Long.MIN_VALUE;
 			i++;
 		} else {
-			limit = -Long.MAX_VALUE;
+			limit = -Long.MAX_VALUE; // 负数最大值
 		}
-		multmin = negative ? MULTMIN_RADIX_TEN : N_MULTMAX_RADIX_TEN;
+		multmin = negative ? MULTMIN_RADIX_TEN : N_MULTMAX_RADIX_TEN; // 负数最大值 / 10
 		if (i < max) {
-			digit = digits[sql[i++]];
-			result = -digit;
+			digit = digits[sql[i++]]; // 取结果
+			result = -digit; // 取负数
 		}
 		while (i < max) {
 			// Accumulating negatively avoids surprises near MAX_VALUE
@@ -698,9 +698,9 @@ public class Lexer {
 				throw new NumberFormatException(numberString());
 			}
 		} else {
-			result = -result;
+			result = -result; // 负负得正
 			if (result <= Integer.MAX_VALUE) {
-				return (int) result;
+				return (int) result; // 小于 int 最大值 返回
 			}
 			return result;
 		}

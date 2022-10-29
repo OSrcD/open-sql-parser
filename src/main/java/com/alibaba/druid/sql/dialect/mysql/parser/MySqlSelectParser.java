@@ -29,14 +29,14 @@ public class MySqlSelectParser extends SQLSelectParser {
         if (lexer.token() == (Token.LPAREN)) { // 如果 Token 为 (
             lexer.nextToken();
 
-            SQLSelectQuery select = query();
+            SQLSelectQuery select = query(); // 递归
             accept(Token.RPAREN);
 
-            return queryRest(select);
+            return queryRest(select); // all。union 重置
         }
 
-        accept(Token.SELECT); // 用特点 token 访问获取下一个token
-
+        accept(Token.SELECT); // 用特定 token 访问获取下一个token
+        // 返回上面的访问的 select token 再创一个 select 查询块对象
         MySqlSelectQueryBlock queryBlock = new MySqlSelectQueryBlock();
 
         if (lexer.token() == (Token.DISTINCT)) {
@@ -50,7 +50,7 @@ public class MySqlSelectParser extends SQLSelectParser {
             lexer.nextToken(); // 标记完 获取下一个 token
         }
 
-        if (identifierEquals("HIGH_PRIORITY")) {
+        if (identifierEquals("HIGH_PRIORITY")) { // 优先执行操作
             queryBlock.setHignPriority(true);
             lexer.nextToken();
         }

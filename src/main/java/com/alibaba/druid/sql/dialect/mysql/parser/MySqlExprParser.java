@@ -44,7 +44,7 @@ public class MySqlExprParser extends SQLExprParser {
 
         return super.relationalRest(expr); // 调用父类重置
     }
-    // Token 为IDENTIFIER 并且内容为 MOD 需要重置
+    // Token 为IDENTIFIER 并且内容为 MOD 取余 需要重置
     public SQLExpr multiplicativeRest(SQLExpr expr) throws ParserException {
         if (lexer.token() == Token.IDENTIFIER && "MOD".equalsIgnoreCase(lexer.stringVal())) {
             lexer.nextToken();
@@ -185,7 +185,7 @@ public class MySqlExprParser extends SQLExprParser {
                 }
             }
         }
-        // token 为 (  需要重置 并且当前表达为 标识符表达SQL
+        // 下一个 token 为 (  需要重置 并且当前表达为 标识符表达SQL
         if (lexer.token() == Token.LPAREN && expr instanceof SQLIdentifierExpr) {
             SQLIdentifierExpr identExpr = (SQLIdentifierExpr) expr;
             String ident = identExpr.getName();

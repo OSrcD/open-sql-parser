@@ -48,7 +48,7 @@ public class SQLExprParser extends SQLParser {
     public SQLExprParser(Lexer lexer) {
         super(lexer);
     }
-
+    // 解析表达式对象
     public SQLExpr expr() throws ParserException {
         if (lexer.token() == Token.STAR) { // 如果表达式为 * 则标记为一个所有列
             lexer.nextToken();
@@ -56,35 +56,35 @@ public class SQLExprParser extends SQLParser {
             return new SQLAllColumnExpr();
         }
 
-        SQLExpr expr = primary(); // 解析主要的表达式
+        SQLExpr expr = primary(); // 解析主要的表达式 并会进行 表达式重置进行组合在一起
 
-        if (lexer.token() == Token.COMMA) { // Token , 直接返回
+        if (lexer.token() == Token.COMMA) { // 为逗号 Token 比如 ', ' 直接返回
             return expr;
         }
 
-        return exprRest(expr);
+        return exprRest(expr); // 带着下一个 token 进行 exprRest 外置重置
     }
 
     public SQLExpr exprRest(SQLExpr expr) throws ParserException { // 表达式重置的操作
-        expr = bitXorRest(expr);
-        expr = multiplicativeRest(expr);
-        expr = additiveRest(expr);
-        expr = shiftRest(expr);
-        expr = bitAndRest(expr);
-        expr = bitOrRest(expr);
-        expr = inRest(expr);
-        expr = relationalRest(expr);
-        expr = equalityRest(expr);
-        expr = andRest(expr);
-        expr = xorRest(expr);
-        expr = orRest(expr);
+        expr = bitXorRest(expr); // ^
+        expr = multiplicativeRest(expr); // 乘除 取余 重置 Token 为IDENTIFIER 并且内容为 MOD 取余。  * 。/。 %
+        expr = additiveRest(expr); // 叠加或加法重置 比如 1 + 1 ,+。 ||。 -
+        expr = shiftRest(expr); // << 。>>
+        expr = bitAndRest(expr); // &
+        expr = bitOrRest(expr); // |
+        expr = inRest(expr); // IN,如果为 AND 或者为 && 重置,如果为 OR 则重置
+        expr = relationalRest(expr); // 如果为 标识符 并且为 REGEXP 则重置。< 。<=。<=>。>。>=。!<。!>。<>。LIKE。NOT。BETWEEN。IS。NOT。IN
+        expr = equalityRest(expr); // = 。!=
+        expr = andRest(expr); // 如果为 AND 或者为 && 重置
+        expr = xorRest(expr); // 如果为 XOR 重置
+        expr = orRest(expr); // 如果为 OR 则重置
 
         return expr;
     }
 
-    public final SQLExpr bitXor() throws ParserException {
-        SQLExpr expr = primary();
-        return bitXorRest(expr);
+    public final SQLExpr bitXor() throws ParserException { // 位异或 解析主要表达式 位异或重置
+        SQLExpr expr = primary(); // 先取出表达式
+        return bitXorRest(expr); // // 进行位异或重置
     }
 
     public SQLExpr bitXorRest(SQLExpr expr) throws ParserException {
@@ -92,14 +92,14 @@ public class SQLExprParser extends SQLParser {
             lexer.nextToken();
             SQLExpr rightExp = primary();
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.BitwiseXor, rightExp);
-            expr = bitXorRest(expr);
+            expr = bitXorRest(expr); // 递归
         }
 
         return expr;
     }
-
+    // 相乘运算符 primary 取出表达式进行位异或重置 再进行乘 除 %取余 以及 mod取余重置 返回一个右边表达式
     public final SQLExpr multiplicative() throws ParserException {
-        SQLExpr expr = bitXor();
+        SQLExpr expr = bitXor(); // 位异或
         return multiplicativeRest(expr);
     }
 
@@ -108,17 +108,17 @@ public class SQLExprParser extends SQLParser {
             lexer.nextToken();
             SQLExpr rightExp = primary();
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.Multiply, rightExp);
-            expr = multiplicativeRest(expr);
+            expr = multiplicativeRest(expr); // 递归
         } else if (lexer.token() == Token.SLASH) { // 如果为 / 则重置
             lexer.nextToken();
             SQLExpr rightExp = primary();
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.Divide, rightExp);
-            expr = multiplicativeRest(expr);
+            expr = multiplicativeRest(expr); // 递归
         } else if (lexer.token() == Token.PERCENT) { // 如果为 % 重置
             lexer.nextToken();
             SQLExpr rightExp = primary();
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.Modulus, rightExp);
-            expr = multiplicativeRest(expr);
+            expr = multiplicativeRest(expr); // 递归
         }
         return expr;
     }
@@ -126,7 +126,7 @@ public class SQLExprParser extends SQLParser {
     public SQLExpr primary() throws ParserException {
         SQLExpr sqlExpr = null;
 
-        final Token tok = lexer.token(); // 获取当前token
+        final Token tok = lexer.token(); // 开始解析节点的时候获取当前 token 再解析
 
         switch (tok) {
         case LPAREN:
@@ -147,15 +147,15 @@ public class SQLExprParser extends SQLParser {
             break;
         case NEW:
             throw new ParserException("TODO");
-        case LITERAL_NUM_PURE_DIGIT:
+        case LITERAL_NUM_PURE_DIGIT: //  数字类型的 token
             sqlExpr = new SQLIntegerExpr(lexer.integerValue());
-            lexer.nextToken();
+            lexer.nextToken(); // 解析完一个 token 节点就获取下一个token
             break;
         case LITERAL_NUM_MIX_DIGIT:
             sqlExpr = new SQLNumberExpr(lexer.decimalValue());
             lexer.nextToken();
             break;
-        case LITERAL_CHARS:
+        case LITERAL_CHARS: // 文字字符 比如 ,
             sqlExpr = new SQLCharExpr(lexer.stringVal());
             lexer.nextToken();
             break;
@@ -376,7 +376,7 @@ public class SQLExprParser extends SQLParser {
             throw new ParserException("ERROR. token : " + tok);
         }
 
-        return primaryRest(sqlExpr);
+        return primaryRest(sqlExpr); // 带着下一个 token 进行 内置主要primary重置
     }
 
     protected SQLExpr parseInterval() {
@@ -432,22 +432,22 @@ public class SQLExprParser extends SQLParser {
                 if (expr instanceof SQLIdentifierExpr) {
                     SQLIdentifierExpr identExpr = (SQLIdentifierExpr) expr;
                     String method_name = identExpr.getName();
-                    lexer.nextToken();
+                    lexer.nextToken(); // token 没法 new 新SQL 节点处理 就会继续扫描下一个 token
 
-                    if (isAggreateFunction(method_name)) {
+                    if (isAggreateFunction(method_name)) { // 如果是聚合函数 "AVG", "COUNT", "MAX", "MIN", "STDDEV", "SUM"
                         SQLAggregateExpr aggregateExpr = parseAggregateExpr(method_name);
 
                         return aggregateExpr;
                     }
 
                     SQLMethodInvokeExpr methodInvokeExpr = new SQLMethodInvokeExpr(method_name);
-                    if (lexer.token() != Token.RPAREN) {
-                        exprList(methodInvokeExpr.getParameters());
+                    if (lexer.token() != Token.RPAREN) { // 如果当前的 token 不等于 ) 括号
+                        exprList(methodInvokeExpr.getParameters()); // 取出方法参数值
                     }
 
-                    accept(Token.RPAREN);
+                    accept(Token.RPAREN); // 只能是 右边括号 token 所以会用这种 访问 accept 的形式
 
-                    return primaryRest(methodInvokeExpr);
+                    return primaryRest(methodInvokeExpr); // 递归
                 }
 
                 throw new ParserException("not support token:");
@@ -477,7 +477,7 @@ public class SQLExprParser extends SQLParser {
             exprCol.add(name());
         }
     }
-
+    // 导出到 SQLExpr 列表 也就是 解析方法参数列表
     public final void exprList(Collection<SQLExpr> exprCol) throws ParserException {
         if (lexer.token() == Token.RPAREN) {
             return;
@@ -487,10 +487,10 @@ public class SQLExprParser extends SQLParser {
             return;
         }
 
-        SQLExpr expr = expr();
+        SQLExpr expr = expr(); // 解析表达式
         exprCol.add(expr);
 
-        while (lexer.token() == Token.COMMA) {
+        while (lexer.token() == Token.COMMA) { // 其实这里就是代替递归了
             lexer.nextToken();
             expr = expr();
             exprCol.add(expr);
@@ -677,12 +677,12 @@ public class SQLExprParser extends SQLParser {
     }
 
     public SQLExpr additiveRest(SQLExpr expr) throws ParserException {
-        if (lexer.token() == Token.PLUS) { // 如果为 + 则重置
-            lexer.nextToken();
-            SQLExpr rightExp = multiplicative();
+        if (lexer.token() == Token.PLUS) { // 如果为 + 则重置 有这种判断token的 之前已经扫描过一次token了 只是这种Token不需要new对象 所以下面会扫描Token 再new 进行组合在一起 因为是统一的
+            lexer.nextToken(); // 重置是先扫描下一个 Token  再 new 对象
+            SQLExpr rightExp = multiplicative(); // primary 取出表达式进行位异或重置 再进行乘 除 取余重置 返回一个右边表达式
 
-            expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.Add, rightExp);
-            expr = additiveRest(expr);
+            expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.Add, rightExp); // 表达式组合
+            expr = additiveRest(expr); // 递归
         } else if (lexer.token() == Token.BARBAR) { // 如果为 || 重置
             lexer.nextToken();
             SQLExpr rightExp = multiplicative();

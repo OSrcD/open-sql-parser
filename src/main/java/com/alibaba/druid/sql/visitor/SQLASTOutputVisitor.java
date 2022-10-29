@@ -169,11 +169,11 @@ public class SQLASTOutputVisitor extends SQLASTVisitorAdapter {
                 left.accept(this);
             }
         } else {
-            x.getLeft().accept(this);
+            x.getLeft().accept(this); // 打印左边
         }
 
         print(" ");
-        print(x.getOperator().name);
+        print(x.getOperator().name); // 打印操作符名
         print(" ");
 
         if (x.getRight() instanceof SQLBinaryOpExpr) {
@@ -186,7 +186,7 @@ public class SQLASTOutputVisitor extends SQLASTVisitorAdapter {
                 right.accept(this);
             }
         } else {
-            x.getRight().accept(this);
+            x.getRight().accept(this); // 打印右边表达式
         }
 
         return false;
@@ -282,7 +282,7 @@ public class SQLASTOutputVisitor extends SQLASTVisitorAdapter {
     }
 
     public boolean visit(SQLIntegerExpr x) {
-        print(x.getNumber().toString());
+        print(x.getNumber().toString()); // 打印数字
         return false;
     }
 

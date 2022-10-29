@@ -8,12 +8,12 @@ import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLExprImpl;
 import com.alibaba.druid.sql.dialect.oracle.ast.visitor.OracleASTVisitor;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
-
+// SQL方法类型调用
 public class SQLMethodInvokeExpr extends SQLExprImpl implements Serializable {
     private static final long serialVersionUID = 1L;
     private String methodName;
     private SQLExpr owner;
-    private final List<SQLExpr> parameters = new ArrayList<SQLExpr>();
+    private final List<SQLExpr> parameters = new ArrayList<SQLExpr>(); // 方法参数
 
     public SQLMethodInvokeExpr() {
 

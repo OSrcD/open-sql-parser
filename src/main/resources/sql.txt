@@ -1,0 +1,144 @@
+ select  uuid()              as pk_id
+        ,cust_id            as cust_id
+        ,z.uid              as uid
+        ,contact_no         as contact_no
+        ,cnty_cd            as cnty_cd
+        ,area_no            as area_no
+        ,ext_no             as ext_no
+        ,contact_typ        as contact_typ
+        ,chnl_id            as chnl_id
+        ,sc_ind             as sc_ind
+        ,status             as status
+        ,priority           as priority
+        ,contact_no_weight  as contact_no_weight
+        ,t3.contact_type    as is_bind
+        ,t4.contact_type               as bind_dt
+        ,null               as is_flt_delay_phone
+        ,interact_score     as interact_score
+ from    (
+        select  cust_id
+                ,uid
+                ,contact_no
+                ,cnty_cd
+                ,area_no
+                ,ext_no
+                ,contact_typ
+                ,chnl_id
+                ,sc_ind
+                ,status
+                ,priority
+                ,contact_no_weight
+                ,interact_score
+        from    (
+                        select  t.one_id                                as cust_id
+                                ,t.uid                                  as uid
+                                ,case   when t1.telephone is not null and t2.phone_type = 'mobile' then t1.telephone
+                                        else t2.contact_no
+                                end                                     as contact_no
+                                ,t2.country_code                        as cnty_cd
+                                ,t2.area_no                             as area_no
+                                ,t2.ext_no                              as ext_no
+                                ,case   when t1.telephone is not null and t2.phone_type = 'mobile' then 'mobile'
+                                        else t2.phone_type
+                                end                                     as contact_typ
+                                ,case   when t1.telephone is not null and t2.phone_type = 'mobile' then t1.channle_id
+                                        else t2.channel_id
+                                end                                     as chnl_id
+                                ,t2.associate_type                      as sc_ind
+                                ,t2.status                              as status
+                                ,t2.priority                            as priority
+                                ,case   when t1.telephone is not null and t2.phone_type = 'mobile' then t1.weight_level
+                                end                                     as contact_no_weight
+                                ,t1.interact_score                      as interact_score
+                        from
+                                (
+                                        select  one_id
+                                                ,data_value as uid
+                                        from    czcdm.mid_cbd_oneid_certificate
+                                        where   ds = '${bizdate}'
+                                        and     data_label = 'uid'
+
+                                ) t
+                        left outer join
+                                (
+                                        select  one_id
+                                                ,uid
+                                                ,telephone
+                                                ,weight_level
+                                                ,channle_id
+                                                ,interact_score
+                                        from
+                                                (
+                                                        select  one_id
+                                                                ,uid
+                                                                ,telephone
+                                                                ,weight_level
+                                                                ,channle_id
+                                                                ,interact_score
+                                                        from    czods.s_cbd_oneid_phone
+                                                        where   ds = '${bizdate}'
+
+                                                ) v
+                                        where v.rn = 1
+                                ) t1
+                        on      t1.one_id = t.one_id
+                        left outer join
+                                (
+                                        select  uid
+                                                ,contact_no
+                                                ,country_code
+                                                ,area_no
+                                                ,ext_no
+                                                ,phone_type
+                                                ,channel_id
+                                                ,associate_type
+                                                ,status
+                                                ,priority
+                                        from    (
+                                                        select  uid
+                                                                ,contact_no         as contact_no
+                                                                ,country_code     as country_code
+                                                                ,area_no               as area_no
+                                                                ,ext_no                 as ext_no
+                                                                ,phone_type         as phone_type
+                                                                ,channel_id         as channel_id
+                                                                ,associate_type as associate_type
+                                                                ,status                 as status
+                                                                ,priority             as priority
+                                                        from    czods.s_svcdb_svc_pc_contact
+                                                        where   ds = '${bizdate}'
+                                                        and     nvl(contact_no,'') != ''
+
+                                                ) v
+                                        where   v.rn = 1
+                                ) t2
+                        on      t2.uid = t.uid
+                ) w
+        ) z
+ left join
+        (
+            select  uid, contact_type  as contact_type
+            from    (
+                        select  uid,contact_type,status
+                        from    czods.s_svcdb_svc_pc_web_contact_info
+                        where   ds = max_pt('czods.s_svcdb_svc_pc_web_contact_info')
+                    )   t3
+            where   t3.rn = 1
+            and     t3.status = 'Y'
+            group by uid
+        )     t3
+ on      z.uid = t3.uid
+ left join
+         (
+             select  uid, contact_type  as contact_type
+             from    (
+                         select  uid,contact_type,status
+                         from    czods.s_svcdb_svc_pc_web_contact_info
+                         where   ds = max_pt('czods.s_svcdb_svc_pc_web_contact_info')
+                     )   t3
+             where   t3.rn = 1
+             and     t3.status = 'Y'
+             group by uid
+         )     t4
+  on      z.uid = t4.uid
+ where   z.rn = 1;
