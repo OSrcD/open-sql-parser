@@ -198,11 +198,11 @@ public class Lexer {
 					token = COLON;
 				}
 				return;
-			case '.':
+			case '.': // .
 				scanChar();
-				token = Token.DOT;
+				token = Token.DOT; // token 为 . 一般是表别名
 				return;
-			case '\'': // 一般是 \' 转义
+			case '\'': // 一般是 \' 转义 字符串中的'
 				scanString(); // 扫描字符串
 				return;
 			case '\"':

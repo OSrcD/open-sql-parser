@@ -346,7 +346,7 @@ public class MySqlExprParser extends SQLExprParser {
             }
         }
 
-        return super.primaryRest(expr); // 调用父类进行重置
+        return super.primaryRest(expr); // 调用父类进行重置。. token 需要重置 表名.字段是形式
     }
 
     protected SQLSelectParser createSelectParser() {

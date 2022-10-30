@@ -70,7 +70,7 @@ public class CharTypes {
         identifierFlags['_'] = true;
         identifierFlags['$'] = true;
     }
-
+    // 如果不是内设的字符返回false
     public static boolean isIdentifierChar(char c) {
         return c > identifierFlags.length || identifierFlags[c];
     }

@@ -84,7 +84,7 @@ public class MySqlLexer extends Lexer {
 			stringVal = symbolTable.addSymbol(sql, offsetCache, sizeCache, hash); // 字符缓存容器 返回一整串的字符
 			Token tok = keywods.getKeyword(stringVal); // 从关键字常量当中返回这个字符串的token
 			if (tok != null) {
-				token = tok;
+				token = tok; // is 为非关键字
 			} else {
 				token = Token.IDENTIFIER; // 不是特点的关键字就标识为标识符 IDENTIFIER
 			}
@@ -145,10 +145,10 @@ public class MySqlLexer extends Lexer {
 				scanChar();
 			}
 
-			if (ch == '\'') { // 为 \ 其实就是' 字符
+			if (ch == '\'') { // 为 \ 其实就是' 字符 代表字符串结束了
 				scanChar(); // 向前扫一个字符
 				if (ch != '\'') { // 如果不等于 ' 字符
-					token = LITERAL_CHARS;  // 标记该token为 文字字符
+					token = LITERAL_CHARS;  // 标记该token为 文字字符 数据库中的字符串为字符
 					break;
 				} else {
 					System.arraycopy(sql, offsetCache + 1, sbuf, 0, sizeCache);

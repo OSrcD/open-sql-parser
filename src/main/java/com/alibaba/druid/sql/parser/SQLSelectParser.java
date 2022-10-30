@@ -159,7 +159,7 @@ public class SQLSelectParser extends SQLParser {
             lexer.nextToken();
             SQLTableSource tableSource;
             if (lexer.token() == Token.SELECT) {
-                tableSource = new SQLSubqueryTableSource(select());
+                tableSource = new SQLSubqueryTableSource(select()); // 子查询解析 重新调用 select 方法
             } else if (lexer.token() == Token.LPAREN) {
                 tableSource = parseTableSource(); // 递归
             } else {
@@ -240,7 +240,8 @@ public class SQLSelectParser extends SQLParser {
                 join.setCondition(expr());
             }
 
-            return join;
+//            return join;
+            return parseTableSourceRest(join); // 递归
         }
 
         return tableSource;

@@ -62,7 +62,7 @@ public class SQLExprParser extends SQLParser {
             return expr;
         }
 
-        return exprRest(expr); // 带着下一个 token 进行 exprRest 外置重置
+        return exprRest(expr); // 带着下一个 token 进行 exprRest 外置重置 is重置
     }
 
     public SQLExpr exprRest(SQLExpr expr) throws ParserException { // 表达式重置的操作
@@ -155,7 +155,7 @@ public class SQLExprParser extends SQLParser {
             sqlExpr = new SQLNumberExpr(lexer.decimalValue());
             lexer.nextToken();
             break;
-        case LITERAL_CHARS: // 文字字符 比如 ,
+        case LITERAL_CHARS: // 文字字符 比如 , 单引号引起来的字符
             sqlExpr = new SQLCharExpr(lexer.stringVal());
             lexer.nextToken();
             break;
@@ -178,10 +178,10 @@ public class SQLExprParser extends SQLParser {
             }
 
             accept(Token.WHEN);
-            SQLExpr testExpr = expr();
-            accept(Token.THEN);
+            SQLExpr testExpr = expr(); // 解析 case   when t1.telephone 中的 t1 表达式
+            accept(Token.THEN); // Then 解析
             SQLExpr valueExpr = expr();
-            SQLCaseExpr.Item caseItem = new SQLCaseExpr.Item(testExpr, valueExpr);
+            SQLCaseExpr.Item caseItem = new SQLCaseExpr.Item(testExpr, valueExpr); // when t1.telephone is not null and t2.phone_type = 'mobile' then
             caseExpr.getItems().add(caseItem);
 
             while (lexer.token() == Token.WHEN) {
@@ -193,12 +193,12 @@ public class SQLExprParser extends SQLParser {
                 caseExpr.getItems().add(caseItem);
             }
 
-            if (lexer.token() == Token.ELSE) {
+            if (lexer.token() == Token.ELSE) { // else token 解析
                 lexer.nextToken();
                 caseExpr.setElseExpr(expr());
             }
 
-            accept(Token.END);
+            accept(Token.END); // end token
 
             sqlExpr = caseExpr;
             break;
@@ -312,7 +312,7 @@ public class SQLExprParser extends SQLParser {
             sqlExpr = new SQLIdentifierExpr("LOCK");
             lexer.nextToken();
             break;
-        case NULL:
+        case NULL: // 取 Null 表达式
             sqlExpr = new SQLNullExpr();
             lexer.nextToken();
             break;
@@ -392,10 +392,10 @@ public class SQLExprParser extends SQLParser {
             throw new IllegalArgumentException("expr");
         }
 
-        if (lexer.token() == Token.DOT) { // . token 需要重置
+        if (lexer.token() == Token.DOT) { // . token 需要重置 表名.字段是形式
             lexer.nextToken();
 
-            if (lexer.token() == Token.STAR) {
+            if (lexer.token() == Token.STAR) { // token 为 star
                 lexer.nextToken();
                 expr = new SQLPropertyExpr(expr, "*");
             } else {
@@ -403,10 +403,10 @@ public class SQLExprParser extends SQLParser {
                     throw new ParserException("error");
                 }
 
-                String name = lexer.stringVal();
+                String name = lexer.stringVal(); // 取字符串
                 lexer.nextToken();
 
-                if (lexer.token() == Token.LPAREN) {
+                if (lexer.token() == Token.LPAREN) { // 判断是否为方法
                     lexer.nextToken();
 
                     SQLMethodInvokeExpr methodInvokeExpr = new SQLMethodInvokeExpr(name);
@@ -417,19 +417,19 @@ public class SQLExprParser extends SQLParser {
                         accept(Token.RPAREN);
                     }
                     expr = methodInvokeExpr;
-                } else {
-                    expr = new SQLPropertyExpr(expr, name);
+                } else { // is 忽略
+                    expr = new SQLPropertyExpr(expr, name); // 表.列名
                 }
             }
 
-            expr = primaryRest(expr);
+            expr = primaryRest(expr); // 重置
         } else if (lexer.token() == Token.COLONEQ) { // := token 需要重置
             lexer.nextToken();
             SQLExpr rightExp = primary();
             expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.Assignment, rightExp);
         } else {
             if (lexer.token() == Token.LPAREN) { // ( token 需要重置
-                if (expr instanceof SQLIdentifierExpr) {
+                if (expr instanceof SQLIdentifierExpr) { // 方法处理
                     SQLIdentifierExpr identExpr = (SQLIdentifierExpr) expr;
                     String method_name = identExpr.getName();
                     lexer.nextToken(); // token 没法 new 新SQL 节点处理 就会继续扫描下一个 token
@@ -521,7 +521,7 @@ public class SQLExprParser extends SQLParser {
 
         return name;
     }
-
+    // 判断是否为聚合函数
     public boolean isAggreateFunction(String word) {
         String[] _aggregateFunctions = { "AVG", "COUNT", "MAX", "MIN", "STDDEV", "SUM" };
 
@@ -619,7 +619,7 @@ public class SQLExprParser extends SQLParser {
 
     public final SQLExpr equality() throws ParserException {
         SQLExpr expr = relational();
-        return equalityRest(expr);
+        return equalityRest(expr); // = 重置
     }
 
     public final SQLExpr equalityRest(SQLExpr expr) throws ParserException {
@@ -629,8 +629,8 @@ public class SQLExprParser extends SQLParser {
             rightExp = or();
 
             rightExp = equalityRest(rightExp);
-
-            expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.Equality, rightExp);
+            // t2.phone_type = 'mobile'
+            expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.Equality, rightExp); // expr = ds rightExp ${bizdate}' and     data_label = 'uid'
         } else if (lexer.token() == Token.BANGEQ) { // 如果为 != 则重置
             lexer.nextToken();
             rightExp = or();
@@ -730,8 +730,8 @@ public class SQLExprParser extends SQLParser {
     public final SQLExpr andRest(SQLExpr expr) throws ParserException {
         while (lexer.token() == Token.AND || lexer.token() == Token.AMPAMP) { // 如果为 AND 或者为 && 重置
             lexer.nextToken();
-            SQLExpr rightExp = equality();
-            expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.BooleanAnd, rightExp);
+            SQLExpr rightExp = equality(); // 解析右边表达式
+            expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.BooleanAnd, rightExp); // 组合 t1.telephone is not null and t2.phone_type = 'mobile'
         }
         return expr;
     }
@@ -749,7 +749,7 @@ public class SQLExprParser extends SQLParser {
         }
         return expr;
     }
-
+    // 重置相关的表达式都调用
     public final SQLExpr or() throws ParserException {
         SQLExpr expr = xor();
         return orRest(expr);
@@ -850,13 +850,13 @@ public class SQLExprParser extends SQLParser {
             accept(Token.AND);
             SQLExpr endExpr = primary();
             expr = new SQLBetweenExpr(expr, beginExpr, endExpr);
-        } else if (lexer.token() == (Token.IS)) {
+        } else if (lexer.token() == (Token.IS)) { // 如果为 is
             lexer.nextToken();
 
-            if (lexer.token() == (Token.NOT)) {
+            if (lexer.token() == (Token.NOT)) { // 如果为 not
                 lexer.nextToken();
-                SQLExpr rightExpr = primary();
-                expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.IsNot, rightExpr);
+                SQLExpr rightExpr = primary();// primaryRest 只是重置部分表达式 而exprReset是重置整体
+                expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.IsNot, rightExpr); // case 类型的表达式
             } else {
                 SQLExpr rightExpr = primary();
                 expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.Is, rightExpr);
