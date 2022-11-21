@@ -422,7 +422,7 @@ public class SQLExprParser extends SQLParser {
                 }
             }
 
-            expr = primaryRest(expr); // 重置
+            expr = primaryRest(expr); // 递归重置 没进入判断说明还是不可以分解
         } else if (lexer.token() == Token.COLONEQ) { // := token 需要重置
             lexer.nextToken();
             SQLExpr rightExp = primary();
