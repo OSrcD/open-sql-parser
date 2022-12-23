@@ -179,7 +179,7 @@ public class SQLSelectParser extends SQLParser {
 
         parseTableSourceQueryTableExpr(tableReference); // 解析查询表的表达式
 
-        return parseTableSourceRest(tableReference); // 表达式重置
+        return parseTableSourceRest(tableReference); // 多表关联查询 join 重置
     }
 
     private void parseTableSourceQueryTableExpr(SQLExprTableSource tableReference) throws ParserException {
