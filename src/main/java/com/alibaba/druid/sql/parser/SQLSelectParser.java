@@ -229,7 +229,7 @@ public class SQLSelectParser extends SQLParser {
             joinType = SQLJoinTableSource.JoinType.COMMA;
         }
 
-        if (joinType != null) { // 如果表链接为不空
+        if (joinType != null) { // 如果表连接为不空 说明是多表操作
             SQLJoinTableSource join = new SQLJoinTableSource();
             join.setLeft(tableSource);
             join.setJoinType(joinType);
